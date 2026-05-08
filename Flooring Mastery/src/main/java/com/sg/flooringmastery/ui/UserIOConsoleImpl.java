@@ -52,7 +52,7 @@ public class UserIOConsoleImpl implements UserIO{
     @Override
     public int readInt(String prompt) {
         System.out.println(prompt);
-        return scanner.nextInt();
+        return Integer.parseInt(scanner.nextLine());
     }
 
     @Override
@@ -94,7 +94,13 @@ public class UserIOConsoleImpl implements UserIO{
     @Override
     public BigDecimal readBigDecimal(String prompt){
         System.out.println(prompt);
-        return new BigDecimal(scanner.nextLine());
+        String input = scanner.nextLine();
+        if (input.isEmpty()) {
+            return new BigDecimal(0);
+        }
+        else {
+            return new BigDecimal(scanner.nextLine());
+        }
     }
 
     @Override

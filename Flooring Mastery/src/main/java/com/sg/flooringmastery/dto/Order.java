@@ -19,6 +19,21 @@ public class Order{
 
     public Order(){}
 
+    public Order(String customerName, String state, String productType, BigDecimal area){
+        this.customerName = customerName;
+        this.state = state;
+        this.productType = productType;
+        this.area = area;
+    }
+
+    public Order(int orderNumber, String customerName, String state, String productType, BigDecimal area){
+        this.orderNumber = orderNumber;
+        this.customerName = customerName;
+        this.state = state;
+        this.productType = productType;
+        this.area = area;
+    }
+
     public Order(int orderNumber, String customerName, String state, BigDecimal taxRate, String productType, BigDecimal area, BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot){
         this.orderNumber = orderNumber;
         this.customerName = customerName;
@@ -28,6 +43,13 @@ public class Order{
         this.area = area;
         this.costPerSquareFoot = costPerSquareFoot;
         this.laborCostPerSquareFoot = laborCostPerSquareFoot;
+        this.materialCost = getMaterialCost();
+        this.laborCost = getLaborCost();
+        this.tax = getTax();
+        this.total = getTotal();
+    }
+
+    public void recalculateValues(){
         this.materialCost = getMaterialCost();
         this.laborCost = getLaborCost();
         this.tax = getTax();
@@ -124,7 +146,7 @@ public class Order{
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return orderNumber == order.orderNumber && Objects.equals(customerName, order.customerName) && Objects.equals(state, order.state) && Objects.equals(taxRate, order.taxRate) && Objects.equals(productType, order.productType) && Objects.equals(area, order.area) && Objects.equals(costPerSquareFoot, order.costPerSquareFoot) && Objects.equals(laborCostPerSquareFoot, order.laborCostPerSquareFoot) && Objects.equals(materialCost, order.materialCost) && Objects.equals(laborCost, order.laborCost) && Objects.equals(tax, order.tax) && Objects.equals(total, order.total);
+        return orderNumber == order.orderNumber && Objects.equals(customerName, order.customerName) && Objects.equals(state, order.state) && Objects.equals(productType, order.productType) && Objects.equals(area, order.area);
     }
 
     @Override

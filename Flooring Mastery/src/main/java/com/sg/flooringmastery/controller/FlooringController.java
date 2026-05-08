@@ -8,6 +8,7 @@ import com.sg.flooringmastery.ui.FlooringView;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,22 +63,14 @@ public class FlooringController {
     }
 
     public void displayOrders(){
-        boolean hasError = false;
-        LocalDate date = LocalDate.now();
+        LocalDate date = getDate();
 
-        view.displayClearBuffer();
+        List<Order> orders = service.getOrders(date);
 
-        do{
-            try {
-                date = view.getOrderDate();
-                hasError = false;
-            } catch (Exception e) {
-                hasError = true;
-                view.displayErrorMessage("Invalid date format");
-            }
-        }while(hasError);
-
-        List<Order> orders = orders = service.getOrders(date);
+        if (orders == null){
+            view.displayErrorMessage("No orders from that date found");
+            return;
+        }
 
         orders.forEach(order -> view.displayOrder(order));
     }
@@ -85,7 +78,6 @@ public class FlooringController {
     public void addOrder(){
         view.displayAddOrderBanner();
 
-        boolean hasError = false;
         boolean addOrderComplete = false;
         LocalDate date;
         String customerName;
@@ -93,174 +85,70 @@ public class FlooringController {
         String productType;
         BigDecimal area;
 
-        view.displayClearBuffer();
-
         date = getDate();
-        customerName = getCustomerName();
-        state = getState();
-        productType = getProductType();
-        area = getArea();
+        customerName = getCustomerName(false);
+        state = getState(false);
+        productType = getProductType(false);
+        area = getArea(false);
 
-        /**
-         *
-         * CALL SERVICE LAYER TO CREATE THE ORDER OBJECT NOW
-         * ORDER IS ADDED TO THE DAO'S LIST AFTER THIS
-         *
-         */
+        Order order = new Order(customerName, state, productType, area);
 
         if (view.confirmAddOrder()){
-            /**
-             * CALL SERVICE LAYER TO STORE THE ORDER IN MEMORY
-             */
+            service.addOrder(date, order);
+            view.displayOrder(order);
         }
     }
 
     public void editOrder(){
         view.displayEditOrderBanner();
-        view.displayClearBuffer();
 
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
-        boolean hasError = false;
         String customerName = "";
         String state = "";
         String productType = "";
         BigDecimal area = null;
 
-        /**
-         *
-         * GET ORDER FROM SERVICE
-         *
-         */
-
         date = getDate();
         orderNumber = getOrderNumber();
 
-        Order o1 = new Order(001, "Steve", "Ohio", new BigDecimal("10"), "Wood", new BigDecimal("10"), new BigDecimal("100"), new BigDecimal("51"));
         Order order = service.getOrder(date, orderNumber);
 
-        if (o1 == null) {
+        if (order == null) {
             view.displayErrorMessage("No order was found");
             return;
         }
 
-        view.displayClearBuffer();
+        customerName = getCustomerName(true);
+        state = getState(true);
+        productType = getProductType(true);
+        area = getArea(true);
 
-        do{
-            try{
-                customerName = view.getCustomerName();
-                hasError = false;
-            }
-            catch (OrderValidationException e){
-                view.displayErrorMessage(e.getMessage());
-                hasError = true;
-            }
-        }while(hasError || customerName.isEmpty());
-
-        do{
-            try{
-                state = view.getCustomerState();
-                hasError = false;
-            }
-            catch (OrderValidationException e){
-                view.displayErrorMessage(e.getMessage());
-                hasError = true;
-            }
-        }while(hasError || state.isEmpty());
-
-        do{
-            try{
-                productType = view.getProdctType();
-                hasError = false;
-            }
-            catch (OrderValidationException e){
-                view.displayErrorMessage(e.getMessage());
-                hasError = true;
-            }
-        }while(hasError || productType.isEmpty());
-
-        do{
-            try{
-                area = view.getArea();
-                hasError = false;
-            }
-            catch (OrderValidationException | NumberFormatException e){
-                view.displayErrorMessage(e.getMessage());
-                hasError = true;
-            }
-        }while(hasError || area == null);
-
-        /**
-         *
-         * IF NO CHANGES MADE, EXIT
-         *
-         */
-
-        /**
-         *
-         * TELL SERVICE LAYER TO RECALCULATE VALUES
-         *
-         */
+        Order editedOrder = new Order(orderNumber, customerName, state, productType, area);
 
         if (view.confirmEditOrder()){
-            /**
-             *
-             * CALL EDIT ORDER IN SERVICE LAYER
-             *
-             */
+            service.editOrder(date, editedOrder);
         }
     }
 
     public void removeOrder(){
         view.displayRemoveBanner();
-        view.displayClearBuffer();
 
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
-        boolean hasError = false;
 
-        /**
-         *
-         * GET ORDER FROM SERVICE
-         *
-         */
+        date = getDate();
+        orderNumber = getOrderNumber();
 
-        do{
-            try {
-                date = view.getOrderDate();
-                // Validate value in service layer
-                hasError = false;
-            }
-            catch(OrderValidationException | DateTimeParseException e){
-                hasError = true;
-                view.displayErrorMessage(e.getMessage());
-            }
-        }while(hasError);
-
-        do{
-            try {
-                orderNumber = view.getOrderNumber();
-                // Validate value in service layer
-                hasError = false;
-            }
-            catch(InputMismatchException e){
-                hasError = true;
-                view.displayErrorMessage(e.getMessage());
-            }
-        }while(hasError);
-
-        Order o1 = new Order(001, "Steve", "Ohio", new BigDecimal("10"), "Wood", new BigDecimal("10"), new BigDecimal("100"), new BigDecimal("51"));
         Order order = service.getOrder(date, orderNumber);
 
-        view.displayClearBuffer();
+        if (order == null) {
+            view.displayErrorMessage("No order was found");
+            return;
+        }
 
         if (view.confirmRemoveOrder()){
-            /**
-             *
-             * CALL SERVICE TO REMOVE THE DTO FROM THE DAO
-             *
-             */
-            view.displayRemoveResult(order);
+            view.displayRemoveResult(service.removeOrder(date, orderNumber));
         }
     }
 
@@ -300,10 +188,9 @@ public class FlooringController {
         do{
             try {
                 orderNumber = view.getOrderNumber();
-                // Validate value in service layer
                 hasError = false;
             }
-            catch(InputMismatchException e){
+            catch(NumberFormatException | InputMismatchException e){
                 hasError = true;
                 view.displayErrorMessage(e.getMessage());
             }
@@ -312,13 +199,16 @@ public class FlooringController {
         return orderNumber;
     }
 
-    private String getCustomerName(){
+    private String getCustomerName(boolean isEditing){
         boolean hasError = false;
         String customerName = "";
 
         do{
             try{
                 customerName = view.getCustomerName();
+                if (isEditing && customerName.isEmpty()){
+                    return "";
+                }
                 service.validateCustomerName(customerName);
                 hasError = false;
             }
@@ -331,13 +221,17 @@ public class FlooringController {
         return customerName;
     }
 
-    private String getState(){
+    private String getState(boolean isEditing){
         boolean hasError = false;
         String state = "";
 
         do{
             try{
                 state = view.getCustomerState();
+                if (isEditing && state.isEmpty()){
+                    return "";
+                }
+                service.validateCustomerState(state);
                 hasError = false;
             }
             catch(OrderValidationException e){
@@ -348,16 +242,20 @@ public class FlooringController {
         return state;
     }
 
-    private String getProductType(){
+    private String getProductType(boolean isEditing){
         boolean hasError = false;
         String productType = "";
 
         do{
             try{
                 productType = view.getProdctType();
+                service.validateProductType(productType);
                 hasError = false;
             }
             catch(OrderValidationException e){
+                if (isEditing && productType.isEmpty()){
+                    return "";
+                }
                 hasError = true;
                 view.displayErrorMessage(e.getMessage());
             }
@@ -366,13 +264,17 @@ public class FlooringController {
         return productType;
     }
 
-    private BigDecimal getArea(){
+    private BigDecimal getArea(boolean isEditing){
         boolean hasError = false;
         BigDecimal area = new BigDecimal(0);
 
         do{
             try{
-                area = view.getArea();
+                String input = view.getArea();
+                if (isEditing && input.isEmpty()){
+                    return null;
+                }
+                area = new BigDecimal(input);
                 service.validateArea(area);
                 hasError = false;
             }

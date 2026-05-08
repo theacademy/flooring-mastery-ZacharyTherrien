@@ -26,37 +26,43 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
 
     @Override
     public List<Order> getOrders(LocalDate date) {
-        List<Order> orders = new ArrayList<>();
-
-        Order o1 = new Order(001, "Steve", "Ohio", new BigDecimal("10"), "Wood", new BigDecimal("10"), new BigDecimal("100"), new BigDecimal("51"));
-        Order o2 = new Order(002, "Steven", "Misshigan", new BigDecimal("1000"), "Rock", new BigDecimal("13"), new BigDecimal("100"), new BigDecimal("5"));
-        Order o3 = new Order(003, "Stevens", "NY", new BigDecimal("1"), "Stone", new BigDecimal("11"), new BigDecimal("20"), new BigDecimal("3"));
-
-        orders.add(o1);
-        orders.add(o2);
-        orders.add(o3);
-
-        return orders;
+        return orderDao.getOrdersByDate(date);
     }
 
     @Override
     public Order getOrder(LocalDate date, int orderNumber) {
-        return null;
+        return orderDao.getOrder(date, orderNumber);
     }
 
     @Override
     public Order addOrder(LocalDate date, Order order) {
-        return null;
+        /**
+         *
+         *
+         * AFTER THE ORDER IS SENT HERE, ADD TAX AND PRODUCT
+         * RELATED INFO!!!
+         *
+         */
+        return orderDao.addOrder(date, order);
     }
 
     @Override
     public void editOrder(LocalDate date, Order order) {
+        /**
+         *
+         *
+         * ADD ALL VALUES FROM TAX AND PRODUCT
+         *
+         *
+         */
 
+        //order.recalculateValues();
+        orderDao.editOrder(date, order);
     }
 
     @Override
     public Order removeOrder(LocalDate date, int orderNumber) {
-        return null;
+        return orderDao.removeOrder(date, orderNumber);
     }
 
     @Override
@@ -89,11 +95,25 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
     }
 
     public void validateCustomerState(String state){
-
+        if (state.matches("\\s*")){
+            throw new OrderValidationException("State must not be blank");
+        }
+        /***
+         *
+         * CHECK DAO FOR MATCHING STATE
+         *
+         */
     }
 
     public void validateProductType(String productType){
-
+        if (productType.matches("\\s*")){
+            throw new OrderValidationException("product type must not be blank");
+        }
+        /***
+         *
+         * CHECK DAO FOR MATCHING PRODUCT TYPE
+         *
+         */
     }
 
     public void validateArea(BigDecimal area){

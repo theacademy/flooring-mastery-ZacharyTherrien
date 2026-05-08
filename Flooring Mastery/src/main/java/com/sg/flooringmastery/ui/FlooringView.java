@@ -52,8 +52,8 @@ public class FlooringView {
         return io.readString("Please enter the type of flooring");
     }
 
-    public BigDecimal getArea(){
-        return io.readBigDecimal("Please enter the area needed for your order");
+    public String getArea(){
+        return io.readString("Please enter the area needed for your order");
     }
 
     public void displayOrder(Order order){

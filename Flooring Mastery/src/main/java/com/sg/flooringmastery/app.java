@@ -2,6 +2,7 @@ package com.sg.flooringmastery;
 
 import com.sg.flooringmastery.controller.FlooringController;
 import com.sg.flooringmastery.dao.order.OrderDao;
+import com.sg.flooringmastery.dao.order.OrderDaoFileImpl;
 import com.sg.flooringmastery.dao.product.ProductDao;
 import com.sg.flooringmastery.dao.tax.TaxDao;
 import com.sg.flooringmastery.service.FlooringServiceLayerImpl;
@@ -17,7 +18,7 @@ public class app {
         // Create view with user input
         FlooringView myView = new FlooringView(io);
         // Create the DAOs
-        OrderDao orderDao = null;
+        OrderDao orderDao = new OrderDaoFileImpl();
         TaxDao taxDao = null;
         ProductDao productDao = null;
         // Create the service layer with the DAOs
