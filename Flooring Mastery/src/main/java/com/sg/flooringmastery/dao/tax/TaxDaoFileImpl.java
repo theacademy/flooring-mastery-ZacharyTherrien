@@ -23,6 +23,7 @@ public class TaxDaoFileImpl implements TaxDao{
         Scanner scanner;
 
         try {
+            // Create a scanner to read the tax file
             scanner = new Scanner(new BufferedReader(new FileReader(TAX_FILE)));
         } catch (FileNotFoundException e) {
             throw new Error(e.getMessage());
@@ -32,22 +33,31 @@ public class TaxDaoFileImpl implements TaxDao{
         Tax currentTax;
 
         while (scanner.hasNextLine()) {
+            // Read the current line from the tax file
             currentLine = scanner.nextLine();
+            // Get the tax object from the string
             currentTax = unmarshallTax(currentLine);
+            // Add the tax object to the taxes map
             taxes.put(currentTax.getStateAbbreviation(), currentTax);
         }
 
+        // Clean up
         scanner.close();
     }
 
     private Tax unmarshallTax(String taxAsText){
+        // Parse the give tax string by the designated delimiter
         String[] taxTokens = taxAsText.split(DELIMITER);
+
+        // Create a new tax object
         Tax tax = new Tax();
 
+        // Set the values of the tax object to the parsed values
         tax.setStateAbbreviation(taxTokens[0]);
         tax.setStateName(taxTokens[1]);
         tax.setTaxRate(new BigDecimal(taxTokens[2]));
 
+        // Return the tax object
         return tax;
     }
 

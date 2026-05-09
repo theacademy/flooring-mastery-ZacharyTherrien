@@ -27,6 +27,7 @@ public class ProductDaoFileImpl implements ProductDao{
         Scanner scanner;
 
         try {
+            // Create a scanner to read the products file
             scanner = new Scanner(new BufferedReader(new FileReader(PRODUCT_FILE)));
         } catch (FileNotFoundException e) {
             throw new Error(e.getMessage());
@@ -36,22 +37,31 @@ public class ProductDaoFileImpl implements ProductDao{
         Product Product;
 
         while (scanner.hasNextLine()) {
+            // Read the current line from the product file
             currentLine = scanner.nextLine();
+            // Get the product object from the string
             Product = unmarshallTax(currentLine);
+            // Add the product to the products map
             products.put(Product.getProductType(), Product);
         }
 
+        // Clean up
         scanner.close();
     }
 
     private Product unmarshallTax(String productAsText){
+        // Parse the given product string by the designated delimiter
         String[] productTokens = productAsText.split(DELIMITER);
+
+        // Create a new product
         Product product = new Product();
 
+        // Set the values of the product to the parsed values
         product.setProductType(productTokens[0]);
         product.setCostPerSquareFoot(new BigDecimal(productTokens[1]));
         product.setLaborCostPerSquareFoot(new BigDecimal(productTokens[2]));
 
+        // Return the product
         return product;
     }
 

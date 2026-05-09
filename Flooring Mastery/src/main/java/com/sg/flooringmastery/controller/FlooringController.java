@@ -65,8 +65,10 @@ public class FlooringController {
     public void displayOrders(){
         LocalDate date = getDate(false);
 
+        // Get the orders from the service layer only from a certain date
         List<Order> orders = service.getOrders(date);
 
+        // If there're no orders or order file, exit
         if (orders == null || orders.isEmpty()){
             view.displayErrorMessage("No orders from: " + date);
             return;
@@ -78,6 +80,7 @@ public class FlooringController {
     public void addOrder(){
         view.displayAddOrderBanner();
 
+        // Declare variables to store the inputs for the order values first
         boolean addOrderComplete = false;
         LocalDate date;
         String customerName;
@@ -85,6 +88,7 @@ public class FlooringController {
         String productType;
         BigDecimal area;
 
+        // Get all the data using helper methods to contact the view
         date = getDate(true);
         customerName = getCustomerName(false);
         state = getState(false);
@@ -93,6 +97,7 @@ public class FlooringController {
 
         Order order = new Order(customerName, state, productType, area);
 
+        // Ask the user to add the order, and if they confirm, add it to the dao
         if (view.confirmAddOrder()){
             service.addOrder(date, order);
             view.displayOrder(order);
@@ -102,6 +107,7 @@ public class FlooringController {
     public void editOrder(){
         view.displayEditOrderBanner();
 
+        // Declare variables to store the inputs for the order values first
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
         String customerName = "";
@@ -109,23 +115,29 @@ public class FlooringController {
         String productType = "";
         BigDecimal area = null;
 
+        // Use the helper methods to get the date and number of the order edit
         date = getDate(false);
         orderNumber = getOrderNumber();
 
         Order order = service.getOrder(date, orderNumber);
 
+        // If the order does not exist, exit
         if (order == null) {
             view.displayErrorMessage("No order was found");
             return;
         }
 
+        // Get all the data using helper methods to contact the view
+        // Send true to the helper method to enable editing: where empty values are accepted
         customerName = getCustomerName(true);
         state = getState(true);
         productType = getProductType(true);
         area = getArea(true);
 
+        // Create a new order object with the computed data
         Order editedOrder = new Order(orderNumber, customerName, state, productType, area);
 
+        // Ask the user to replace the original order, and if they confirm, replace it in the dao
         if (view.confirmEditOrder()){
             service.editOrder(date, editedOrder);
             service.calculateOrderCosts(order);
@@ -135,25 +147,30 @@ public class FlooringController {
     public void removeOrder(){
         view.displayRemoveBanner();
 
+        // Declare the variables to store the user's date and number of the order to delete
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
 
+        // Get the date and number of the order to delete from the user
         date = getDate(false);
         orderNumber = getOrderNumber();
 
         Order order = service.getOrder(date, orderNumber);
 
+        // If the order doesn't exist, exit without removing
         if (order == null) {
             view.displayErrorMessage("No order was found");
             return;
         }
 
+        // If the user chooses that to remove the order, remove it from the dao
         if (view.confirmRemoveOrder()){
             view.displayRemoveResult(service.removeOrder(date, orderNumber));
         }
     }
 
     public void exportAllData(){
+        // Call the service to export all the in-memory order data to persistence storage
         service.exportAllData();
         view.displaySaveSuccess("Order data has been saved to the file!");
     }

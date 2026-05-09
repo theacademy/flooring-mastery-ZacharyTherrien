@@ -29,17 +29,19 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
 
     @Override
     public List<Order> getOrders(LocalDate date) {
+        // Call the dao to get all the orders on a date and return the list
         return orderDao.getOrdersByDate(date);
     }
 
     @Override
     public Order getOrder(LocalDate date, int orderNumber) {
+        // Get a singular order by its number and the date it was placed
         return orderDao.getOrder(date, orderNumber);
     }
 
     @Override
     public int getNextOrderNumber() {
-        return 0;
+        return orderDao.getNextOrdersNumber();
     }
 
     @Override

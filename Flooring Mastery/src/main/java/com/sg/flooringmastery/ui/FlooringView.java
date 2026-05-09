@@ -120,6 +120,7 @@ public class FlooringView {
     }
 
     public void displayProducts(List<Product> products){
+        // Loop through the list of products to display the product types to choose from
         io.print("All available products:\n" +
                 "*****************************");
 
