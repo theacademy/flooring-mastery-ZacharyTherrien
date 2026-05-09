@@ -2,17 +2,15 @@ package com.sg.flooringmastery.dao.order;
 
 import com.sg.flooringmastery.dto.Order;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OrderDaoFileImpl implements OrderDao {
 
-    private final String ORDERS_FOLDER = "/Orders";
+    private final String ORDERS_FOLDER = "./Orders";
     private final String DELIMITER = "::";
     private Map<LocalDate, Map<Integer, Order>> orders;
     private int highestOrderNumber = 3;
@@ -20,35 +18,63 @@ public class OrderDaoFileImpl implements OrderDao {
     public OrderDaoFileImpl(){
         orders = new HashMap<>();
         loadOrders();
-
-        /**
-         *
-         * FOR NOW, JUST AUTO POPULATE WITH OUR OWN ORDERS
-         *
-         */
     }
 
     private void loadOrders(){
+        Scanner scanner;
 
-        Map<Integer, Order> ordersList = new HashMap<>();
+        File[] fileNames = new File(ORDERS_FOLDER).listFiles();
 
-        Order o1 = new Order(1, "Steve", "Ohio", new BigDecimal("10"), "Wood", new BigDecimal("10"), new BigDecimal("100"), new BigDecimal("51"));
-        Order o2 = new Order(2, "Steven", "Misshigan", new BigDecimal("1000"), "Rock", new BigDecimal("13"), new BigDecimal("100"), new BigDecimal("5"));
-        Order o3 = new Order(3, "Stevens", "NY", new BigDecimal("1"), "Stone", new BigDecimal("11"), new BigDecimal("20"), new BigDecimal("3"));
+        if (fileNames == null){
+            return;
+        }
 
-        ordersList.put(o1.getOrderNumber(), o1);
-        ordersList.put(o2.getOrderNumber(), o2);
-        ordersList.put(o3.getOrderNumber(), o3);
+        // Loop over each file and add each order to Map of respective date in map
+        for (int i = 0; i < fileNames.length; i++){
+            String filename = fileNames[i].getName();
 
-        LocalDate date1 = LocalDate.parse("01-01-2222", DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            String filenameSplit = filename.split("\\.")[0].split("_")[1];
+            String dateString = "" +
+                    filenameSplit.charAt(0) + filenameSplit.charAt(1) + "-" +
+                    filenameSplit.charAt(2) + filenameSplit.charAt(3) + "-" +
+                    filenameSplit.charAt(4) + filenameSplit.charAt(5) + filenameSplit.charAt(6) + filenameSplit.charAt(7);
 
-        orders.put(LocalDate.parse("01-01-2222", DateTimeFormatter.ofPattern("MM-dd-yyyy")), ordersList);
+            LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            Map<Integer, Order> ordersOnDate = new HashMap<>();
+            orders.put(date, ordersOnDate);
+
+            try {
+                // Create Scanner for reading the file
+                scanner = new Scanner(new BufferedReader(new FileReader(ORDERS_FOLDER + "/" + filename)));
+            } catch (FileNotFoundException e) {
+                throw new OrderPersistenceException(e.getMessage());
+            }
+
+            String currentLine;
+            Order currentOrder;
+
+            while (scanner.hasNextLine()) {
+                currentLine = scanner.nextLine();
+                // Parse the line into an order object
+                currentOrder = unmarshallOrder(currentLine);
+                // After data has been parsed, add it to its respective order map
+                ordersOnDate.put(currentOrder.getOrderNumber(), currentOrder);
+                // Set the value of the highest order number found
+                if (currentOrder.getOrderNumber() > highestOrderNumber){
+                    highestOrderNumber = currentOrder.getOrderNumber();
+                }
+            }
+
+            // close scanner
+            scanner.close();
+        }
 
     }
 
     @Override
     public int getNextOrdersNumber() {
-        return highestOrderNumber++;
+        highestOrderNumber++;
+        return highestOrderNumber;
     }
 
     @Override
@@ -111,7 +137,38 @@ public class OrderDaoFileImpl implements OrderDao {
 
     @Override
     public void exportOrder() {
+        PrintWriter out;
 
+        for (LocalDate date : orders.keySet()){
+            String month = String.valueOf(date.getMonthValue());
+            if (month.length() < 2){
+                month = "0" + month;
+            }
+            String day = String.valueOf(date.getDayOfMonth());
+            if (day.length() < 2){
+                day = "0" + day;
+            }
+            String filename = "Orders_" +month + day + date.getYear();
+
+            try {
+                out = new PrintWriter(new FileWriter(ORDERS_FOLDER + "/" + filename + ".txt"));
+            } catch (IOException e) {
+                throw new OrderPersistenceException(e.getMessage());
+            }
+                String orderAsText;
+                List<Order> orderList = orders.get(date).values().stream().toList();
+                for (Order order : orderList) {
+                    // turn a Student into a String
+                    orderAsText = marshallOrders(order);
+                    // write the Student object to the file
+                    out.println(orderAsText);
+                    // force PrintWriter to write line to the file
+                    out.flush();
+                }
+
+                // Clean up
+                out.close();
+        }
     }
 
     @Override
@@ -119,11 +176,40 @@ public class OrderDaoFileImpl implements OrderDao {
 
     }
 
-    private Order unmarshallOrder(){
-        return null;
+    private Order unmarshallOrder(String orderLine){
+        String[] orderTokens = orderLine.split(DELIMITER);
+
+        Order order = new Order();
+
+        order.setOrderNumber(Integer.parseInt(orderTokens[0]));
+        order.setCustomerName(orderTokens[1]);
+        order.setState(orderTokens[2]);
+        order.setTaxRate(new BigDecimal(orderTokens[3]));
+        order.setProductType(orderTokens[4]);
+        order.setArea(new BigDecimal(orderTokens[5]));
+        order.setCostPerSquareFoot(new BigDecimal(orderTokens[6]));
+        order.setLaborCostPerSquareFoot(new BigDecimal(orderTokens[7]));
+        order.setMaterialCost(new BigDecimal(orderTokens[8]));
+        order.setLaborCost(new BigDecimal(orderTokens[9]));
+        order.setTax(new BigDecimal(orderTokens[10]));
+        order.setTotal(new BigDecimal(orderTokens[11]));
+
+        return order;
     }
 
-    private String marshallOrders(){
-        return null;
+    private String marshallOrders(Order order){
+        String orderAsText = order.getOrderNumber() + DELIMITER;
+        orderAsText += order.getCustomerName() + DELIMITER;
+        orderAsText += order.getState() + DELIMITER;
+        orderAsText += order.getTaxRate() + DELIMITER;
+        orderAsText += order.getProductType() + DELIMITER;
+        orderAsText += order.getArea() + DELIMITER;
+        orderAsText += order.getCostPerSquareFoot() + DELIMITER;
+        orderAsText += order.getLaborCostPerSquareFoot() + DELIMITER;
+        orderAsText += order.getMaterialCost() + DELIMITER;
+        orderAsText += order.getLaborCost() + DELIMITER;
+        orderAsText += order.getTax() + DELIMITER;
+        orderAsText += order.getTotal() + DELIMITER;
+        return orderAsText;
     }
 }

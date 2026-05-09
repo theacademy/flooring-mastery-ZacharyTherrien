@@ -63,12 +63,12 @@ public class FlooringController {
     }
 
     public void displayOrders(){
-        LocalDate date = getDate();
+        LocalDate date = getDate(false);
 
         List<Order> orders = service.getOrders(date);
 
-        if (orders == null){
-            view.displayErrorMessage("No orders from that date found");
+        if (orders == null || orders.isEmpty()){
+            view.displayErrorMessage("No orders from: " + date);
             return;
         }
 
@@ -85,7 +85,7 @@ public class FlooringController {
         String productType;
         BigDecimal area;
 
-        date = getDate();
+        date = getDate(true);
         customerName = getCustomerName(false);
         state = getState(false);
         productType = getProductType(false);
@@ -109,7 +109,7 @@ public class FlooringController {
         String productType = "";
         BigDecimal area = null;
 
-        date = getDate();
+        date = getDate(false);
         orderNumber = getOrderNumber();
 
         Order order = service.getOrder(date, orderNumber);
@@ -128,6 +128,7 @@ public class FlooringController {
 
         if (view.confirmEditOrder()){
             service.editOrder(date, editedOrder);
+            service.calculateOrderCosts(order);
         }
     }
 
@@ -137,7 +138,7 @@ public class FlooringController {
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
 
-        date = getDate();
+        date = getDate(false);
         orderNumber = getOrderNumber();
 
         Order order = service.getOrder(date, orderNumber);
@@ -152,7 +153,10 @@ public class FlooringController {
         }
     }
 
-    public void exportAllData(){}
+    public void exportAllData(){
+        service.exportAllData();
+        view.displaySaveSuccess("Order data has been saved to the file!");
+    }
 
     public void unknownCommand(){
         view.displayUnknownCommand();
@@ -162,14 +166,14 @@ public class FlooringController {
         view.displayExitMessage();
     }
 
-    private LocalDate getDate(){
+    private LocalDate getDate(boolean addingOrder){
         boolean hasError = false;
         LocalDate date = LocalDate.now();
 
         do{
             try {
                 date = view.getOrderDate();
-                service.validateOrderDate(date);
+                service.validateOrderDate(date, addingOrder);
                 hasError = false;
             }
             catch(OrderValidationException | DateTimeParseException e){
@@ -248,6 +252,7 @@ public class FlooringController {
 
         do{
             try{
+                view.displayProducts(service.getAllProducts());
                 productType = view.getProdctType();
                 service.validateProductType(productType);
                 hasError = false;

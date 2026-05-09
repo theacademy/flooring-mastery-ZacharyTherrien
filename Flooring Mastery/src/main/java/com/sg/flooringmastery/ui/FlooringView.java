@@ -2,9 +2,11 @@ package com.sg.flooringmastery.ui;
 
 import com.sg.flooringmastery.dao.order.OrderDao;
 import com.sg.flooringmastery.dto.Order;
+import com.sg.flooringmastery.dto.Product;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public class FlooringView {
     private UserIO io;
@@ -117,6 +119,17 @@ public class FlooringView {
         io.print("=== Add Order ===");
     }
 
+    public void displayProducts(List<Product> products){
+        io.print("All available products:\n" +
+                "*****************************");
+
+        products.forEach( p ->
+                io.print(p.getProductType())
+        );
+
+        io.print("*****************************");
+    }
+
     public void displayEditOrderBanner(){
         io.print("=== Edit Orders ===");
     }
@@ -136,6 +149,8 @@ public class FlooringView {
     }
 
     public void displayUnknownCommand() { io.print("Unknown command");}
+
+    private String formatCurrentValue(String currentValue) { return null; }
 
     public void displayClearBuffer() { io.readString(""); }
 }

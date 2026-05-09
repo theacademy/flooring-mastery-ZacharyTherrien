@@ -49,28 +49,36 @@ public class Order{
         this.total = getTotal();
     }
 
-    public void recalculateValues(){
-        this.materialCost = getMaterialCost();
-        this.laborCost = getLaborCost();
-        this.tax = getTax();
-        this.total = getTotal();
+    public BigDecimal getMaterialCost() {
+        return materialCost;
     }
 
-    public BigDecimal getMaterialCost() {
-        return area.multiply(costPerSquareFoot);
+    public void setMaterialCost(BigDecimal materialCost) {
+        this.materialCost = materialCost;
     }
 
     public BigDecimal getLaborCost() {
-        return area.multiply(laborCostPerSquareFoot);
+        return laborCost;
+    }
+
+    public void setLaborCost(BigDecimal laborCost) {
+        this.laborCost = laborCost;
     }
 
     public BigDecimal getTax() {
-        BigDecimal divisor = new BigDecimal(100);
-        return materialCost.add(laborCost).multiply(taxRate.divide(divisor));
+        return tax;
+    }
+
+    public void setTax(BigDecimal tax) {
+        this.tax = tax;
     }
 
     public BigDecimal getTotal() {
         return materialCost.add(laborCost).add(tax);
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public int getOrderNumber() {

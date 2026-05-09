@@ -5,8 +5,11 @@ import com.sg.flooringmastery.dao.order.OrderDao;
 import com.sg.flooringmastery.dao.product.ProductDao;
 import com.sg.flooringmastery.dao.tax.TaxDao;
 import com.sg.flooringmastery.dto.Order;
+import com.sg.flooringmastery.dto.Product;
+import com.sg.flooringmastery.dto.Tax;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,29 +38,21 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
     }
 
     @Override
+    public int getNextOrderNumber() {
+        return 0;
+    }
+
+    @Override
     public Order addOrder(LocalDate date, Order order) {
-        /**
-         *
-         *
-         * AFTER THE ORDER IS SENT HERE, ADD TAX AND PRODUCT
-         * RELATED INFO!!!
-         *
-         */
-        return orderDao.addOrder(date, order);
+        orderDao.addOrder(date, order);
+        calculateOrderCosts(order);
+        return order;
     }
 
     @Override
     public void editOrder(LocalDate date, Order order) {
-        /**
-         *
-         *
-         * ADD ALL VALUES FROM TAX AND PRODUCT
-         *
-         *
-         */
-
-        //order.recalculateValues();
         orderDao.editOrder(date, order);
+        calculateOrderCosts(order);
     }
 
     @Override
@@ -67,7 +62,7 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
 
     @Override
     public void exportAllData() {
-
+        orderDao.exportOrder();
     }
 
     @Override
@@ -75,16 +70,39 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
 
     }
 
+    @Override
     public Order calculateOrderCosts(Order order){
-        return null;
+        // Set the tax and product values from the respective types into the order
+        Tax tax = taxDao.getTax(order.getState());
+        order.setState(tax.getStateName());
+        order.setTaxRate(tax.getTaxRate().setScale(2, RoundingMode.HALF_UP));
+
+        Product product = productDao.getProduct(order.getProductType());
+        order.setCostPerSquareFoot(product.getCostPerSquareFoot());
+        order.setLaborCostPerSquareFoot(product.getLaborCostPerSquareFoot());
+
+        // Calculate the remaining values.
+        order.setMaterialCost(order.getArea().multiply(order.getCostPerSquareFoot()));
+        order.setLaborCost(order.getArea().multiply(order.getLaborCostPerSquareFoot()));
+
+        BigDecimal materialLabor = order.getMaterialCost().add(order.getLaborCost());
+        BigDecimal divisor = new BigDecimal("100");
+        BigDecimal taxRateDivision = order.getTaxRate().divide(divisor).setScale(2, RoundingMode.HALF_UP);
+
+        order.setTax(order.getTaxRate().divide(taxRateDivision));
+        order.setTotal(materialLabor.add(order.getTax()));
+
+        return order;
     }
 
-    public void validateOrderDate(LocalDate date){
-        if (!date.isAfter(LocalDate.now())){
+    @Override
+    public void validateOrderDate(LocalDate date, boolean isAdding){
+        if (isAdding && !date.isAfter(LocalDate.now())){
             throw new OrderValidationException("Order Date must be placed in the future");
         }
     }
 
+    @Override
     public void validateCustomerName(String name){
         if (name.matches("\\s*")){
             throw new OrderValidationException("Name must not be blank");
@@ -94,32 +112,47 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
         }
     }
 
+    @Override
     public void validateCustomerState(String state){
+
         if (state.matches("\\s*")){
             throw new OrderValidationException("State must not be blank");
         }
-        /***
-         *
-         * CHECK DAO FOR MATCHING STATE
-         *
-         */
+
+        //Verify that user inputs the state abbreviation
+        Tax tax= taxDao.getTax(state);
+
+        if (tax == null){
+            throw new OrderValidationException("Invalid state abbreviation entered");
+        }
     }
 
+    @Override
     public void validateProductType(String productType){
+        boolean stateFound = false;
+
         if (productType.matches("\\s*")){
             throw new OrderValidationException("product type must not be blank");
         }
-        /***
-         *
-         * CHECK DAO FOR MATCHING PRODUCT TYPE
-         *
-         */
+
+        //Verify that user inputs the state abbreviation
+        Product product= productDao.getProduct(productType);
+
+        if (product == null){
+            throw new OrderValidationException("Invalid state abbreviation entered");
+        }
     }
 
+    @Override
     public void validateArea(BigDecimal area){
         final BigDecimal MIN_SIZE = new BigDecimal(100);
         if (area.compareTo(MIN_SIZE) <= 0) {
             throw new OrderValidationException("The area must be a positive decimal. Minimum order size is 100 sq ft.");
         }
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productDao.getAllProducts();
     }
 }

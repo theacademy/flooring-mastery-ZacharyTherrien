@@ -4,7 +4,9 @@ import com.sg.flooringmastery.controller.FlooringController;
 import com.sg.flooringmastery.dao.order.OrderDao;
 import com.sg.flooringmastery.dao.order.OrderDaoFileImpl;
 import com.sg.flooringmastery.dao.product.ProductDao;
+import com.sg.flooringmastery.dao.product.ProductDaoFileImpl;
 import com.sg.flooringmastery.dao.tax.TaxDao;
+import com.sg.flooringmastery.dao.tax.TaxDaoFileImpl;
 import com.sg.flooringmastery.service.FlooringServiceLayerImpl;
 import com.sg.flooringmastery.ui.FlooringView;
 import com.sg.flooringmastery.ui.UserIO;
@@ -19,8 +21,8 @@ public class app {
         FlooringView myView = new FlooringView(io);
         // Create the DAOs
         OrderDao orderDao = new OrderDaoFileImpl();
-        TaxDao taxDao = null;
-        ProductDao productDao = null;
+        TaxDao taxDao = new TaxDaoFileImpl();
+        ProductDao productDao = new ProductDaoFileImpl();
         // Create the service layer with the DAOs
         FlooringServiceLayerImpl myServiceLayer = new FlooringServiceLayerImpl(orderDao, taxDao, productDao);
         // Create the controller with the view and service layer
