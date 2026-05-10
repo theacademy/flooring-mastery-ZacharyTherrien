@@ -87,12 +87,12 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
         order.setMaterialCost(order.getArea().multiply(order.getCostPerSquareFoot()));
         order.setLaborCost(order.getArea().multiply(order.getLaborCostPerSquareFoot()));
 
-        BigDecimal materialLabor = order.getMaterialCost().add(order.getLaborCost());
+        BigDecimal materialPlusLaborCost = order.getMaterialCost().add(order.getLaborCost());
         BigDecimal divisor = new BigDecimal("100");
         BigDecimal taxRateDivision = order.getTaxRate().divide(divisor).setScale(2, RoundingMode.HALF_UP);
 
-        order.setTax(order.getTaxRate().divide(taxRateDivision));
-        order.setTotal(materialLabor.add(order.getTax()));
+        order.setTax(materialPlusLaborCost.multiply(taxRateDivision));
+        order.setTotal(materialPlusLaborCost.add(order.getTax()));
 
         return order;
     }
@@ -109,14 +109,13 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
         if (name.matches("\\s*")){
             throw new OrderValidationException("Name must not be blank");
         }
-        if (!name.matches("[a-zA-A0-9,.-]*")){
+        if (!name.matches("[a-zA-Z0-9,.-]*")){
             throw new OrderValidationException("Only characters [a-z][0-9] as well as periods and comma characters are allowed for customer name.");
         }
     }
 
     @Override
     public void validateCustomerState(String state){
-
         if (state.matches("\\s*")){
             throw new OrderValidationException("State must not be blank");
         }

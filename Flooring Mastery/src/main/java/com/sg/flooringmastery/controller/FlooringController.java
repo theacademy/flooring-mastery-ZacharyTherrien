@@ -68,7 +68,7 @@ public class FlooringController {
         // Get the orders from the service layer only from a certain date
         List<Order> orders = service.getOrders(date);
 
-        // If there're no orders or order file, exit
+        // If there are no orders or order file, exit
         if (orders == null || orders.isEmpty()){
             view.displayErrorMessage("No orders from: " + date);
             return;
@@ -81,7 +81,6 @@ public class FlooringController {
         view.displayAddOrderBanner();
 
         // Declare variables to store the inputs for the order values first
-        boolean addOrderComplete = false;
         LocalDate date;
         String customerName;
         String state;

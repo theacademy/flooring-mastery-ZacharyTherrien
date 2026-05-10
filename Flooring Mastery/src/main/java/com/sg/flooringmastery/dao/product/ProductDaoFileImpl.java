@@ -7,20 +7,36 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class ProductDaoFileImpl implements ProductDao{
 
-    final String PRODUCT_FILE = "./Data/Products.txt";
+    final String PRODUCT_FILE;
     final String DELIMITER = "::";
     Map<String, Product> products;
 
     public ProductDaoFileImpl(){
+        PRODUCT_FILE = "./Data/Products.txt";
         products = new HashMap<>();
         loadProducts();
+    }
+
+    public ProductDaoFileImpl(String productsFile){
+        PRODUCT_FILE = productsFile;
+        products = new HashMap<>();
+        loadProducts();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductDaoFileImpl that = (ProductDaoFileImpl) o;
+        return Objects.equals(products, that.products);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(products);
     }
 
     private void loadProducts(){

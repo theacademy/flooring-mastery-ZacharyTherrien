@@ -10,11 +10,30 @@ import java.util.*;
 
 public class TaxDaoFileImpl implements TaxDao{
 
-    final String TAX_FILE = "./Data/Taxes.txt";
+    final String TAX_FILE;
     final String DELIMITER = "::";
     Map<String, Tax> taxes;
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        TaxDaoFileImpl that = (TaxDaoFileImpl) o;
+        return Objects.equals(taxes, that.taxes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(taxes);
+    }
+
     public TaxDaoFileImpl(){
+        TAX_FILE = "./Data/Taxes.txt";
+        taxes = new HashMap<>();
+        loadTaxes();
+    }
+
+    public TaxDaoFileImpl(String taxesFile){
+        TAX_FILE = taxesFile;
         taxes = new HashMap<>();
         loadTaxes();
     }

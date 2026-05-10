@@ -11,23 +11,13 @@ import com.sg.flooringmastery.service.FlooringServiceLayerImpl;
 import com.sg.flooringmastery.ui.FlooringView;
 import com.sg.flooringmastery.ui.UserIO;
 import com.sg.flooringmastery.ui.UserIOConsoleImpl;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class app {
     public static void main(String[] args) {
-        System.out.println("main");
-        // Create the user input
-        UserIO io = new UserIOConsoleImpl();
-        // Create view with user input
-        FlooringView myView = new FlooringView(io);
-        // Create the DAOs
-        OrderDao orderDao = new OrderDaoFileImpl();
-        TaxDao taxDao = new TaxDaoFileImpl();
-        ProductDao productDao = new ProductDaoFileImpl();
-        // Create the service layer with the DAOs
-        FlooringServiceLayerImpl myServiceLayer = new FlooringServiceLayerImpl(orderDao, taxDao, productDao);
-        // Create the controller with the view and service layer
-        FlooringController controller = new FlooringController(myView, myServiceLayer);
-        // Finally run the program
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+        FlooringController controller = ctx.getBean("controller", FlooringController.class);
         controller.run();
     }
 }

@@ -1,6 +1,7 @@
 package com.sg.flooringmastery.dao.order;
 
 import com.sg.flooringmastery.dto.Order;
+import com.sg.flooringmastery.service.OrderNotFoundException;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -10,17 +11,24 @@ import java.util.*;
 
 public class OrderDaoFileImpl implements OrderDao {
 
-    private final String ORDERS_FOLDER = "./Orders";
+    private final String ORDERS_FOLDER;
     private final String DELIMITER = "::";
     private Map<LocalDate, Map<Integer, Order>> orders;
     private int highestOrderNumber = 0;
 
-    public OrderDaoFileImpl(){
+    public OrderDaoFileImpl() throws OrderPersistenceException{
+        ORDERS_FOLDER = "./Orders";
         orders = new HashMap<>();
         loadOrders();
     }
 
-    private void loadOrders(){
+    public OrderDaoFileImpl(String ordersFile) throws OrderNotFoundException {
+        ORDERS_FOLDER = ordersFile;
+        orders = new HashMap<>();
+        loadOrders();
+    }
+
+    private void loadOrders() throws OrderPersistenceException {
         Scanner scanner;
 
         // First, get all the order files from the order folder
@@ -52,7 +60,7 @@ public class OrderDaoFileImpl implements OrderDao {
                 // Create Scanner for reading the file
                 scanner = new Scanner(new BufferedReader(new FileReader(ORDERS_FOLDER + "/" + filename)));
             } catch (FileNotFoundException e) {
-                throw new OrderPersistenceException(e.getMessage());
+                throw new OrderPersistenceException("Could not load order from files");
             }
 
             String currentLine;
@@ -105,15 +113,17 @@ public class OrderDaoFileImpl implements OrderDao {
     }
 
     @Override
-    public Order addOrder(LocalDate date, Order order) {
-        // Set the given order to the next oroder number
+    public Order addOrder(LocalDate date, Order order)  {
+        // Set the given order to the next order number
         order.setOrderNumber(getNextOrdersNumber());
         // Increment next order number only here when adding orders
         highestOrderNumber = highestOrderNumber + 1;
+
         // If a new date is given, create a hashmap to represent it
         if (!orders.containsKey(date)){
             orders.put(date, new HashMap<>());
         }
+
         // Add the date to its respective date
         orders.get(date).put(order.getOrderNumber(), order);
         return order;
@@ -156,7 +166,7 @@ public class OrderDaoFileImpl implements OrderDao {
     }
 
     @Override
-    public void exportOrder() {
+    public void exportOrder() throws OrderPersistenceException{
         PrintWriter out;
 
         // Loop over each date in the orders map
@@ -176,7 +186,7 @@ public class OrderDaoFileImpl implements OrderDao {
                 // Create PrintWriter to the respective order file
                 out = new PrintWriter(new FileWriter(ORDERS_FOLDER + "/" + filename + ".txt"));
             } catch (IOException e) {
-                throw new OrderPersistenceException(e.getMessage());
+                throw new OrderPersistenceException("Could to save data to order files");
             }
                 String orderAsText;
                 List<Order> orderList = orders.get(date).values().stream().toList();
@@ -195,7 +205,7 @@ public class OrderDaoFileImpl implements OrderDao {
     }
 
     @Override
-    public void exportDataToBackup() {
+    public void exportDataToBackup() throws OrderPersistenceException {
 
     }
 

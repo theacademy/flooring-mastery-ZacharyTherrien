@@ -34,20 +34,20 @@ public class Order{
         this.area = area;
     }
 
-    public Order(int orderNumber, String customerName, String state, BigDecimal taxRate, String productType, BigDecimal area, BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot){
-        this.orderNumber = orderNumber;
-        this.customerName = customerName;
-        this.state = state;
-        this.taxRate = taxRate;
-        this.productType = productType;
-        this.area = area;
-        this.costPerSquareFoot = costPerSquareFoot;
-        this.laborCostPerSquareFoot = laborCostPerSquareFoot;
-        this.materialCost = getMaterialCost();
-        this.laborCost = getLaborCost();
-        this.tax = getTax();
-        this.total = getTotal();
-    }
+//    public Order(String customerName, String state, BigDecimal taxRate, String productType, BigDecimal area, BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot){
+//        this.orderNumber = orderNumber;
+//        this.customerName = customerName;
+//        this.state = state;
+//        this.taxRate = taxRate;
+//        this.productType = productType;
+//        this.area = area;
+//        this.costPerSquareFoot = costPerSquareFoot;
+//        this.laborCostPerSquareFoot = laborCostPerSquareFoot;
+//        this.materialCost = getMaterialCost();
+//        this.laborCost = getLaborCost();
+//        this.tax = getTax();
+//        this.total = getTotal();
+//    }
 
     public BigDecimal getMaterialCost() {
         return materialCost;
@@ -146,21 +146,20 @@ public class Order{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return orderNumber == order.orderNumber && Objects.equals(customerName, order.customerName) && Objects.equals(state, order.state) && Objects.equals(taxRate, order.taxRate) && Objects.equals(productType, order.productType) && Objects.equals(area, order.area) && Objects.equals(costPerSquareFoot, order.costPerSquareFoot) && Objects.equals(laborCostPerSquareFoot, order.laborCostPerSquareFoot) && Objects.equals(materialCost, order.materialCost) && Objects.equals(laborCost, order.laborCost) && Objects.equals(tax, order.tax) && Objects.equals(total, order.total);
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(orderNumber, customerName, state, taxRate, productType, area, costPerSquareFoot, laborCostPerSquareFoot, materialCost, laborCost, tax, total);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return orderNumber == order.orderNumber && Objects.equals(customerName, order.customerName) && Objects.equals(state, order.state) && Objects.equals(productType, order.productType) && Objects.equals(area, order.area);
-    }
-
-    @Override
     public String toString() {
-        return "Order{" +
-                "Order Number=" + orderNumber +
+        return "Order Number=" + orderNumber +
                 ", Customer Name='" + customerName + '\'' +
                 ", State='" + state + '\'' +
                 ", Tax Rate=" + taxRate +
@@ -171,7 +170,6 @@ public class Order{
                 ", Material Cost=" + materialCost +
                 ", Labor Cost=" + laborCost +
                 ", Tax=" + tax +
-                ", Total=" + total +
-                '}';
+                ", Total=" + total;
     }
 }

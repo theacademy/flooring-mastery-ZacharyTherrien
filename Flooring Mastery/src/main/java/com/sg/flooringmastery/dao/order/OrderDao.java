@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderDao {
+
     public int getNextOrdersNumber();
 
     public List<Order> getOrdersByDate(LocalDate date);
@@ -21,4 +22,5 @@ public interface OrderDao {
     public void exportOrder();
 
     public void exportDataToBackup();
+
 }
