@@ -24,7 +24,6 @@ public class FlooringView {
                 "\n  * 4. Remove an Order" +
                 "\n  * 5. Export All Data" +
                 "\n  * 6. Quit" +
-                "\n  *" +
                 "\n  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
 
         return io.readInt("Please select from the choices above.");
@@ -119,18 +118,6 @@ public class FlooringView {
         io.print("=== Add Order ===");
     }
 
-    public void displayProducts(List<Product> products){
-        // Loop through the list of products to display the product types to choose from
-        io.print("All available products:\n" +
-                "*****************************");
-
-        products.forEach( p ->
-                io.print(p.getProductType())
-        );
-
-        io.print("*****************************");
-    }
-
     public void displayEditOrderBanner(){
         io.print("=== Edit Orders ===");
     }
@@ -147,6 +134,18 @@ public class FlooringView {
             io.print("Invalid order");
         }
         io.print("Please press enter to continue");
+    }
+
+    public void displayProducts(List<Product> products){
+        // Loop through the list of products to display the product types to choose from
+        io.print("All available products:\n" +
+                "*****************************");
+
+        products.forEach( p ->
+                io.print(p.toString())
+        );
+
+        io.print("*****************************");
     }
 
     public void displayUnknownCommand() { io.print("Unknown command");}

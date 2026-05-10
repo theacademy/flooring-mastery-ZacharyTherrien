@@ -54,10 +54,8 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product{" +
-                "productType='" + productType + '\'' +
-                ", costPerSquareFoot=" + costPerSquareFoot +
-                ", laborCostPerSquareFoot=" + laborCostPerSquareFoot +
-                '}';
+        return "Product: " + productType +
+                ", Cost Per SquareFoot: " + costPerSquareFoot + "$" +
+                ", Labor Cost Per SquareFoot: " + laborCostPerSquareFoot + "$";
     }
 }

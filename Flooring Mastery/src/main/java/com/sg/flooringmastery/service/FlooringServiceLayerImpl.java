@@ -76,7 +76,6 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
     public Order calculateOrderCosts(Order order){
         // Set the tax and product values from the respective types into the order
         Tax tax = taxDao.getTax(order.getState());
-        order.setState(tax.getStateName());
         order.setTaxRate(tax.getTaxRate().setScale(2, RoundingMode.HALF_UP));
 
         Product product = productDao.getProduct(order.getProductType());
@@ -109,7 +108,7 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
         if (name.matches("\\s*")){
             throw new OrderValidationException("Name must not be blank");
         }
-        if (!name.matches("[a-zA-Z0-9,.-]*")){
+        if (!name.matches("[\\sa-zA-Z0-9,.-]*")){
             throw new OrderValidationException("Only characters [a-z][0-9] as well as periods and comma characters are allowed for customer name.");
         }
     }
@@ -147,7 +146,7 @@ public class FlooringServiceLayerImpl implements ServiceLayer{
     @Override
     public void validateArea(BigDecimal area){
         final BigDecimal MIN_SIZE = new BigDecimal(100);
-        if (area.compareTo(MIN_SIZE) <= 0) {
+        if (area.compareTo(MIN_SIZE) < 0) {
             throw new OrderValidationException("The area must be a positive decimal. Minimum order size is 100 sq ft.");
         }
     }

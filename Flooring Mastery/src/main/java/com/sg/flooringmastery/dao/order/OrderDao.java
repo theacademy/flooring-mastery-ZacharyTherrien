@@ -19,8 +19,8 @@ public interface OrderDao {
 
     public Order removeOrder(LocalDate date, int orderNumber);
 
-    public void exportOrder();
+    public void exportOrder() throws OrderPersistenceException;
 
-    public void exportDataToBackup();
+    public void exportDataToBackup() throws OrderPersistenceException;
 
 }

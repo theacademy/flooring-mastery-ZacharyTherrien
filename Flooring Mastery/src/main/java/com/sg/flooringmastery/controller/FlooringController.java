@@ -94,12 +94,15 @@ public class FlooringController {
         productType = getProductType(false);
         area = getArea(false);
 
-        Order order = new Order(customerName, state, productType, area);
+        Order order = new Order(service.getNextOrderNumber() , customerName, state, productType, area);
+        service.calculateOrderCosts(order);
+
+        // Display the order before prompting to add it
+        view.displayOrder(order);
 
         // Ask the user to add the order, and if they confirm, add it to the dao
         if (view.confirmAddOrder()){
             service.addOrder(date, order);
-            view.displayOrder(order);
         }
     }
 
@@ -109,19 +112,19 @@ public class FlooringController {
         // Declare variables to store the inputs for the order values first
         LocalDate date = LocalDate.now();
         int orderNumber = 0;
-        String customerName = "";
-        String state = "";
-        String productType = "";
+        String customerName = null;
+        String state = null;
+        String productType = null;
         BigDecimal area = null;
 
         // Use the helper methods to get the date and number of the order edit
         date = getDate(false);
         orderNumber = getOrderNumber();
 
-        Order order = service.getOrder(date, orderNumber);
+        Order editedOrder = service.getOrder(date, orderNumber);
 
         // If the order does not exist, exit
-        if (order == null) {
+        if (editedOrder == null) {
             view.displayErrorMessage("No order was found");
             return;
         }
@@ -129,17 +132,43 @@ public class FlooringController {
         // Get all the data using helper methods to contact the view
         // Send true to the helper method to enable editing: where empty values are accepted
         customerName = getCustomerName(true);
+
+        if(customerName != null){
+            editedOrder.setCustomerName(customerName);
+        }
+
         state = getState(true);
+
+        if (state != null){
+            editedOrder.setState(state);
+        }
+
         productType = getProductType(true);
+
+        if (productType != null){
+            editedOrder.setProductType(productType);
+        }
+
         area = getArea(true);
 
-        // Create a new order object with the computed data
-        Order editedOrder = new Order(orderNumber, customerName, state, productType, area);
+        if (area != null){
+            editedOrder.setArea(area);
+        }
+
+        // If nothing was changed, exit
+        if (customerName == null && state == null & productType == null && area == null){
+            view.displayErrorMessage("No fields to edit inputted, returning to menu");
+            return;
+        }
+
+        // Calculate the order's costs
+        service.calculateOrderCosts(editedOrder);
+        // Display the newly updated order
+        view.displayOrder(editedOrder);
 
         // Ask the user to replace the original order, and if they confirm, replace it in the dao
         if (view.confirmEditOrder()){
             service.editOrder(date, editedOrder);
-            service.calculateOrderCosts(order);
         }
     }
 
@@ -227,7 +256,7 @@ public class FlooringController {
             try{
                 customerName = view.getCustomerName();
                 if (isEditing && customerName.isEmpty()){
-                    return "";
+                    return null;
                 }
                 service.validateCustomerName(customerName);
                 hasError = false;
@@ -249,7 +278,7 @@ public class FlooringController {
             try{
                 state = view.getCustomerState();
                 if (isEditing && state.isEmpty()){
-                    return "";
+                    return null;
                 }
                 service.validateCustomerState(state);
                 hasError = false;
@@ -275,7 +304,7 @@ public class FlooringController {
             }
             catch(OrderValidationException e){
                 if (isEditing && productType.isEmpty()){
-                    return "";
+                    return null;
                 }
                 hasError = true;
                 view.displayErrorMessage(e.getMessage());

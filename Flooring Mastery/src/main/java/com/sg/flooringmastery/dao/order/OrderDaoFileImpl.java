@@ -114,8 +114,11 @@ public class OrderDaoFileImpl implements OrderDao {
 
     @Override
     public Order addOrder(LocalDate date, Order order)  {
-        // Set the given order to the next order number
-        order.setOrderNumber(getNextOrdersNumber());
+        // Set the given order to the next order number if it is not set
+        if (order.getOrderNumber() <= 0) {
+            order.setOrderNumber(getNextOrdersNumber());
+        }
+
         // Increment next order number only here when adding orders
         highestOrderNumber = highestOrderNumber + 1;
 

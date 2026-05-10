@@ -33,22 +33,6 @@ public class Order{
         this.productType = productType;
         this.area = area;
     }
-
-//    public Order(String customerName, String state, BigDecimal taxRate, String productType, BigDecimal area, BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot){
-//        this.orderNumber = orderNumber;
-//        this.customerName = customerName;
-//        this.state = state;
-//        this.taxRate = taxRate;
-//        this.productType = productType;
-//        this.area = area;
-//        this.costPerSquareFoot = costPerSquareFoot;
-//        this.laborCostPerSquareFoot = laborCostPerSquareFoot;
-//        this.materialCost = getMaterialCost();
-//        this.laborCost = getLaborCost();
-//        this.tax = getTax();
-//        this.total = getTotal();
-//    }
-
     public BigDecimal getMaterialCost() {
         return materialCost;
     }
@@ -159,17 +143,17 @@ public class Order{
 
     @Override
     public String toString() {
-        return "Order Number=" + orderNumber +
-                ", Customer Name='" + customerName + '\'' +
-                ", State='" + state + '\'' +
-                ", Tax Rate=" + taxRate +
-                ", Product Type='" + productType + '\'' +
-                ", Area=" + area +
-                ", CostPerSquareFoot=" + costPerSquareFoot +
-                ", LaborCostPerSquareFoot=" + laborCostPerSquareFoot +
-                ", Material Cost=" + materialCost +
-                ", Labor Cost=" + laborCost +
-                ", Tax=" + tax +
-                ", Total=" + total;
+        return "Order Number: " + orderNumber +
+                ", Customer Name: " + customerName+
+                ", State: " + state +
+                ", Tax Rate: " + taxRate + "$" +
+                ", Product Type: " + productType +
+                ", Area: " + area + " sq ft" +
+                ", CostPerSquareFoot: " + costPerSquareFoot +  "$" +
+                ", LaborCostPerSquareFoot: " + laborCostPerSquareFoot + "$" +
+                ", Material Cost: " + materialCost + "$" +
+                ", Labor Cost: " + laborCost + "$" +
+                ", Tax: " + tax + "$" +
+                ", Total: " + total + "$";
     }
 }
