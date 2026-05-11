@@ -88,7 +88,7 @@ public class ProductDaoFileImpl implements ProductDao{
 
     @Override
     public BigDecimal getProductCostPerSquareFoot(String productType) {
-        return products.get(productType).getLaborCostPerSquareFoot();
+        return products.get(productType).getCostPerSquareFoot();
     }
 
     @Override

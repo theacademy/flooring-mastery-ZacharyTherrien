@@ -191,6 +191,9 @@ public class FlooringController {
             return;
         }
 
+        // Display the order
+        view.displayOrder(order);
+
         // If the user chooses that to remove the order, remove it from the dao
         if (view.confirmRemoveOrder()){
             view.displayRemoveResult(service.removeOrder(date, orderNumber));

@@ -17,19 +17,18 @@
          http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
 
     <!-- Bean definitions go here -->
-    <bean id="classRosterDao"
-          class="com.sg.classroster.dao.ClassRosterDaoFileImpl"/>
+    <bean id="orderDaoFileDao" class="com.sg.flooringmastery.dao.order.OrderDaoFileImpl"/>
 
-    <bean id="classRosterDaoStub"
-          class="com.sg.classroster.dao.ClassRosterDaoStubImpl"/>
+    <bean id="orderDaoStub" class="com.sg.flooringmastery.dao.order.OrderDaoStubImpl"/>
 
-    <bean id="auditDaoStub"
-          class="com.sg.classroster.dao.ClassRosterAuditDaoStubImpl"/>
+    <bean id="taxDaoStub" class="com.sg.flooringmastery.dao.tax.TaxDaoStubImpl"/>
 
-    <bean id="serviceLayer"
-          class="com.sg.classroster.service.ClassRosterServiceLayerImpl">
-        <constructor-arg ref="classRosterDaoStub"/>
-        <constructor-arg ref="auditDaoStub"/>
+    <bean id="productDaoStub" class="com.sg.flooringmastery.dao.product.ProductDaoStubImpl"/>
+
+    <bean id="serviceLayer" class="com.sg.flooringmastery.service.FlooringServiceLayerImpl">
+        <constructor-arg ref="orderDaoStub"/>
+        <constructor-arg ref="productDaoStub"/>
+        <constructor-arg ref="taxDaoStub"/>
     </bean>
 
 </beans>
